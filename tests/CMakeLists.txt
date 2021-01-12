@@ -10,4 +10,4 @@ FILE(GLOB hdrs "*.h")
 FILE(GLOB srcs "*.cpp")
 
 add_executable(${target} ${hdrs} ${srcs})
-target_link_libraries(${target} Catch)
+target_link_libraries(${target} Catch ${DUPLIX_LIBRARY})

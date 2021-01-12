@@ -5,7 +5,7 @@
 #include <string>
 
 #include "duplix/utilities.h"
-#include "duplix/duplicates.h"
+#include "duplix/duplicate_file_finder.h"
 
 int main(int argc, char *argv[]) {
     std::vector<std::string> args(argv + 1, argv + argc);
