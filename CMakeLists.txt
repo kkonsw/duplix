@@ -11,9 +11,6 @@ set(CMAKE_CXX_STANDARD 17)
 set(SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
 set(3RD_PARTY_SOURCE_DIR ${CMAKE_SOURCE_DIR}/3rdparty)
 
-# openssl
-find_package(OpenSSL REQUIRED)
-
 set(DUPLIX_LIBRARY "duplix-lib")
 set(DUPLIX_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/src/duplix)
 add_subdirectory(src/duplix)

@@ -20,20 +20,31 @@ namespace duplix {
   */
 using Files = std::vector<std::string>;
 
-/** Structure to store directory names
-  * with all files inside directories.
+/** Structure to store file names grouped by directories.
+  *
   */
 using DirFiles = std::multimap<std::string, Files>;
+
+/** Structure to store file names with file hashes.
+  *
+  */
+using HashedFiles = std::multimap<std::string, std::string>;
+
+/** Structure to store file names with identical hashes.
+  *
+  */
+using Duplicates = std::map<std::string, Files>;
 
 class DuplicateFileFinder {
  public:
 /** This function finds duplicate files among all directories.
   * \param directories Directories to search for duplicate files.
-  * \returns Names of identical files among input directories.
+  * \returns Identical files among input directories grouped by hashes.
   */
-static std::vector<std::string> find_duplicate_files(
+static Duplicates find_duplicate_files(
         const std::vector<std::string>& directories);
 
+ private:
 /** This function calculates md5 hash of a file using OpenSSL.
   * \param file_path Path to file.
   * \returns md5 hash as a string.

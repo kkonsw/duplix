@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <iomanip>
+#include <iterator>
 #include <filesystem>
 #include <fstream>
 #include <sstream>
@@ -16,7 +17,7 @@ namespace duplix {
 
 namespace fs = std::filesystem;
 
-std::vector<std::string> DuplicateFileFinder::find_duplicate_files(
+Duplicates DuplicateFileFinder::find_duplicate_files(
         const std::vector<std::string>& directories) {
     // check for valid directories
     for (const auto& dir : directories) {
@@ -33,15 +34,31 @@ std::vector<std::string> DuplicateFileFinder::find_duplicate_files(
     }
 
     // calculate file hashes
+    HashedFiles hashed_files;
     for (const auto& files : dir_files) {
-        std::cout << "Listing Directory " << files.first << ":" << std::endl;
         for (const auto& file : files.second) {
-            std::cout << "\tMD5 hash for " << file << ": "
-                << get_md5_file_hash(file) << std::endl;
+            std::string hash = get_md5_file_hash(file);
+            hashed_files.emplace(hash, file);
         }
     }
 
-    return std::vector<std::string>();
+    // find duplicates
+    Duplicates duplicates;
+    auto it = hashed_files.begin();
+    while (it != hashed_files.end()) {
+        auto range = hashed_files.equal_range(it->first);
+        if (std::distance(range.first, range.second) > 1) {
+            Files identical_files;
+            for (auto hash_it = range.first; hash_it != range.second;
+                    ++hash_it) {
+                identical_files.emplace_back(hash_it->second);
+            }
+            duplicates.emplace(it->first, identical_files);
+        }
+        it = range.second;
+    }
+
+    return duplicates;
 }
 
 Files DuplicateFileFinder::get_dir_files(const std::string& directory) {
