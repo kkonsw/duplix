@@ -65,7 +65,10 @@ Files DuplicateFileFinder::get_dir_files(const std::string& directory) {
     Files files;
     for (const auto& file_path : fs::recursive_directory_iterator(directory)) {
         if (fs::is_regular_file(file_path)) {
-            files.emplace_back(file_path.path());
+            // do not include empty files
+            if (fs::file_size(file_path) != 0) {
+                files.emplace_back(file_path.path());
+            }
         }
     }
     return files;

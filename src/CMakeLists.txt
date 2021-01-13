@@ -1,5 +1,7 @@
 set(target ${PROJECT_NAME})
 
+include_directories(${SOURCE_DIR})
+
 FILE(GLOB hdrs "*.h")
 FILE(GLOB srcs "*.cpp")
 

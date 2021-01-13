@@ -54,7 +54,7 @@ static std::string get_md5_file_hash(const std::string& file_path);
 /** This function iterates over all directory files, and,
   * recursively, over the files of all subdirectories.
   * \param directory Directory to search for files.
-  * \returns All regular file names.
+  * \returns Names of all regular non-empty files.
   */
 static Files get_dir_files(const std::string& directory);
 };

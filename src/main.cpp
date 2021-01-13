@@ -15,7 +15,9 @@ int main(int argc, char *argv[]) {
     }
 
     try {
-        duplix::DuplicateFileFinder::find_duplicate_files(args);
+        auto duplicates = duplix::DuplicateFileFinder::
+            find_duplicate_files(args);
+        duplix::print_duplicates(duplicates);
     }
     catch (std::exception& e) {
         std::cout << e.what() << std::endl;
