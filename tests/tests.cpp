@@ -12,5 +12,6 @@ TEST_CASE("Finding duplicates among incorrect directories throws",
     std::vector<std::string> directories;
     directories.emplace_back("123");
     directories.emplace_back("456");
-    REQUIRE_THROWS(duplix::find_duplicate_files(directories));
+    REQUIRE_THROWS(duplix::DuplicateFileFinder::
+            find_duplicate_files(directories));
 }

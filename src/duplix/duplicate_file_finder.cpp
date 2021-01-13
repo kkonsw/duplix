@@ -1,7 +1,12 @@
 // Copyright 2021 Kuznetsov Konstantin
 
+#include <openssl/md5.h>
+
 #include <iostream>
+#include <iomanip>
 #include <filesystem>
+#include <fstream>
+#include <sstream>
 #include <stdexcept>
 #include <map>
 
@@ -11,8 +16,9 @@ namespace duplix {
 
 namespace fs = std::filesystem;
 
-std::vector<std::string> find_duplicate_files(
+std::vector<std::string> DuplicateFileFinder::find_duplicate_files(
         const std::vector<std::string>& directories) {
+    // check for valid directories
     for (const auto& dir : directories) {
         fs::path directory(dir);
         if (!fs::is_directory(directory)) {
@@ -20,29 +26,54 @@ std::vector<std::string> find_duplicate_files(
         }
     }
 
-    // get all regular file names and sizes for each directory
+    // get all regular files for each directory
     DirFiles dir_files;
     for (const auto& dir : directories) {
-        Files files;
-        for (const auto& file_path : fs::recursive_directory_iterator(dir)) {
-            if (fs::is_regular_file(file_path)) {
-                files.emplace(fs::file_size(file_path), file_path.path());
-            }
-        }
-        dir_files.emplace(dir, files);
+        dir_files.emplace(dir, DuplicateFileFinder::get_dir_files(dir));
     }
 
-    // print all filenames with sizes
+    // calculate file hashes
     for (const auto& files : dir_files) {
         std::cout << "Listing Directory " << files.first << ":" << std::endl;
         for (const auto& file : files.second) {
-            std::cout << "\tFile " << file.second << " has size "
-                << file.first << " bytes" << std::endl;
+            std::cout << "\tMD5 hash for " << file << ": "
+                << get_md5_file_hash(file) << std::endl;
         }
     }
 
-    std::vector<std::string> duplicates;
-    return duplicates;
+    return std::vector<std::string>();
+}
+
+Files DuplicateFileFinder::get_dir_files(const std::string& directory) {
+    Files files;
+    for (const auto& file_path : fs::recursive_directory_iterator(directory)) {
+        if (fs::is_regular_file(file_path)) {
+            files.emplace_back(file_path.path());
+        }
+    }
+    return files;
+}
+
+std::string DuplicateFileFinder::get_md5_file_hash(
+        const std::string& file_path) {
+    MD5_CTX ctx;
+    MD5_Init(&ctx);
+    std::ifstream ifs(file_path, std::ios::binary);
+    char file_buffer[4096];
+    while (ifs.read(file_buffer, sizeof(file_buffer)) || ifs.gcount()) {
+        MD5_Update(&ctx, file_buffer, ifs.gcount());
+    }
+    unsigned char digest[MD5_DIGEST_LENGTH] = {};
+    MD5_Final(digest, &ctx);
+
+    // hex to string
+    std::ostringstream hash;
+    hash << std::hex << std::setfill('0');
+    for (auto c : digest) {
+        hash << std::setw(2) << static_cast<int>(c);
+    }
+
+    return hash.str();
 }
 
 };  // namespace duplix
